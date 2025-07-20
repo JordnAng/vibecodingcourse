@@ -111,27 +111,33 @@ const SignupCounter = forwardRef<SignupCounterRef, SignupCounterProps>(({
 
   // Set up real-time subscription
   const setupRealtimeSubscription = useCallback(() => {
-    // Subscribe to changes in the early_signups table
-    subscriptionRef.current = supabase
-      .channel('signup-counter')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'early_signups'
-        },
-        () => {
-          // Fetch updated count when table changes
-          fetchCount()
-        }
-      )
-      .subscribe()
+    try {
+      // Subscribe to changes in the early_signups table
+      subscriptionRef.current = supabase
+        .channel('signup-counter')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'early_signups'
+          },
+          () => {
+            // Fetch updated count when table changes
+            fetchCount()
+          }
+        )
+        .subscribe()
 
-    return () => {
-      if (subscriptionRef.current) {
-        supabase.removeChannel(subscriptionRef.current)
+      return () => {
+        if (subscriptionRef.current) {
+          supabase.removeChannel(subscriptionRef.current)
+        }
       }
+    } catch (err) {
+      console.warn('Failed to setup real-time subscription:', err)
+      // Return no-op cleanup function
+      return () => {}
     }
   }, [fetchCount])
 
