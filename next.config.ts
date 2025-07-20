@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Static export for Netlify
+  output: 'export',
+  trailingSlash: true,
+  
   // Production optimizations
   poweredByHeader: false,
   compress: true,
